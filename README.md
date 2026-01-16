@@ -1,57 +1,107 @@
-# The Pig Game (Dice Game)
+# 2020 Pig Game (Vanilla JS)
 
-A simple 2‑player browser game built with vanilla HTML/CSS/JavaScript. Players take turns rolling dice to build up a **round score**, then choose to **Hold** to bank it into their **global score**—but rolling a **1** ends your turn and costs your round points.
+A two-player browser game implementing the classic “Pig” dice rules with a 1-die mode and a 2-dice variation.
 
-This project is part of my portfolio and focuses on DOM manipulation, game-state management, and clean UI updates.
+This project is intentionally “no framework” to highlight fundamentals: DOM-driven UI, predictable state updates, input validation, and clean UX feedback.
 
----
+## Quick Pitch (Recruiter / Hiring Manager)
 
-## Live / Demo
+If you’re scanning for evidence of practical front-end skill, this project demonstrates:
 
-- Portfolio demo: *[(https://2020-thepiggame.fcjamison.com/)]*
+- **Product thinking**: clear rules, discoverable controls, immediate feedback, and minimal friction to start playing.
+- **UI/UX implementation**: a centered game board, strong hierarchy for scores, and state-based styling for “active” and “winner”.
+- **Engineering fundamentals**: event-driven code, state management, defensive input handling, and reliable UI synchronization.
+- **Professional polish**: consistent typography, iconography, and asset usage (background + dice sprites).
 
----
+## Demo
 
-## Gameplay Rules
+- Public demo: https://2020-thepiggame.fcjamison.com/
 
-### Base Rules (1 Die)
-- 2 players take turns.
-- On your turn, click **Roll dice** as many times as you want.
-- Each roll adds to your **Current (round) score**.
-- If you roll a **1**, you lose your **Current** points and your turn ends.
-- Click **Hold** to add your **Current** score to your **Global** score and pass the turn.
-- First player to reach the **winning score** wins.
+## Gameplay
 
-### Variation (2 Dice)
-When the **2 Dice** mode is selected:
-- Rolling a **1** on either die ends your turn (you lose current points).
-- Rolling **double 1s** (snake eyes) resets your **entire global score to 0** and your turn ends.
+### 1 Die (Base Rules)
 
----
+- Players alternate turns.
+- **Roll dice** accumulates points into the **Current** (round) score.
+- Rolling a **1** loses the round score and ends the turn.
+- **Hold** banks the Current score into the player’s **Global** score and passes the turn.
+- First to reach the **winning score** wins.
 
-## Controls / UI
+### 2 Dice (Variation)
 
-- **New game**: resets scores and starts a new match.
-- **Roll dice**: rolls the die/dice and updates the current score.
-- **Hold**: banks the current score into the player’s global score.
-- **Mode selector**: choose **1 Die** or **2 Dice**.
-- **Final score input**: sets the winning score.
-  - If blank/invalid, the game defaults to **100**.
+When **2 Dice** is selected:
 
----
+- Rolling a **1** on either die ends the turn and loses round points.
+- Rolling **double 1s** (snake eyes) resets the active player’s **Global** score to 0 and ends the turn.
+
+## Controls & UX Details
+
+- **New game** resets state and UI (scores, names, active highlight, dice visibility).
+- **Roll dice** shows dice images only when needed (reduces visual noise).
+- **Hold** uses a **validated winning score**:
+  - If the “Final score” input is blank/invalid, the game defaults to **100**.
+- **Mode selector (1 Die / 2 Dice)** restarts the game to avoid mixed-rule ambiguity.
+
+## Design & Front-End Implementation Highlights
+
+### Layout & Visual Hierarchy
+
+- **Single-screen experience**: everything fits within a centered `.wrapper` with consistent spacing.
+- **Two-column player panels** communicate turn-taking and competition at a glance.
+- **Strong score hierarchy**: large global scores, smaller current score modules.
+
+### State-Based Styling
+
+- **Active player indicator** is purely a CSS class toggle (`.active`), including an accent dot via a `::after` pseudo-element.
+- **Winner state** uses a `.winner` class for immediate, high-salience feedback.
+
+### Assets & Branding Consistency
+
+- Background image with an overlay gradient improves text readability.
+- Dice images are swapped via `src` changes (sprite-style asset set), keeping the DOM stable.
+- Ionicons + Google Fonts are loaded via CDN for a clean, modern UI without build tooling.
+
+## Engineering / Code Highlights (Developer Notes)
+
+### State Model
+
+Core game state is kept in a small set of variables:
+
+- `scores`: global totals for both players
+- `roundScore`: current turn accumulator
+- `activePlayer`: index (0 or 1)
+- `gamePlaying`: guard flag to disable input after win
+- `gameVersion`: `"1"` or `"2"` based on the selector
+
+This separation keeps UI rendering straightforward: UI text always reflects these state variables.
+
+### Event-Driven Flow
+
+- UI is driven by click events for **Roll**, **Hold**, and **New game**, plus a change event for **mode selection**.
+- “Stop-the-world” logic is handled by `gamePlaying` so the UI can remain interactive-looking without allowing invalid state transitions.
+
+### DOM Update Strategy
+
+- Uses stable element IDs (`#score-0`, `#current-1`, etc.) for deterministic updates.
+- Switches turns by toggling classes and resetting only the turn-scoped values.
+- Dice visibility is controlled via `style.display`, keeping the layout consistent.
+
+### Input Validation
+
+Winning score is parsed using `parseInt` and validated with `isNaN` / range checks.
+If invalid, the game falls back to a safe default (100), preventing `NaN` propagation.
 
 ## Tech Stack
 
-- **HTML**: structure and layout
-- **CSS**: styling and layout
-- **JavaScript (Vanilla)**: game logic and DOM updates
-
----
+- **HTML**: structure and semantics
+- **CSS**: layout, typography, state styling
+- **Vanilla JavaScript**: rules engine + DOM updates
+- **Assets**: background + dice images
 
 ## Project Structure
 
 ```
-2020-ThePigGame/
+2020PigGame/
   index.html
   css/
     style.css
@@ -62,59 +112,34 @@ When the **2 Dice** mode is selected:
     dice-1.png ... dice-6.png
 ```
 
----
-
 ## Run Locally
 
 ### Option A: Open directly
-1. Open `index.html` in your browser.
 
-### Option B: Use a local server (recommended)
-Some browsers restrict certain local behaviors; running a server is a good habit.
+Open `index.html` in your browser.
 
-- **VS Code Live Server** (easy):
-  1. Install the “Live Server” extension.
-  2. Right-click `index.html` → **Open with Live Server**.
+### Option B: Serve from a local web server
 
-- **XAMPP** (works great with this repo):
-  1. Start Apache in XAMPP.
-  2. Put the folder in your web root (commonly `C:\xampp\htdocs`).
-  3. Visit `http://localhost/2020-ThePigGame/`.
+If you prefer a local server (recommended for consistency), run one of these from the project folder:
 
----
+- Python: `python -m http.server 5500`
+- Node (if installed): `npx http-server -p 5500`
 
-## Customization
+Then visit: http://localhost:5500/
 
-- **Change default winning score**: update the fallback value in `js/app.js` (currently defaults to `100` when the input is invalid).
-- **Visual styling**: edit `css/style.css`.
-- **Assets**: dice images and background are in `images/`.
+## Customization Ideas
 
----
-
-## What I Practiced / Learned
-
-- Managing game state with clear variables (active player, round score, global scores)
-- DOM updates driven by state changes
-- Event-driven UI (roll/hold/new game)
-- Handling user input safely (fallback winning score)
-
----
-
-## Notes / Known Behaviors
-
-- The UI supports both 1‑die and 2‑dice play via the mode selector.
-- In 2‑dice mode, rolling double 1s resets the active player’s global score.
-
----
+- Add a “**Reset winning score**” button and/or persist the setting in `localStorage`.
+- Add keyboard controls (R = roll, H = hold, N = new).
+- Add a small “rules” modal for first-time users.
+- Add animations (dice shake, score transitions) while keeping state updates deterministic.
 
 ## Credits
 
-- Dice game concept: classic “Pig” dice game rules
-- Icons: Ionicons (loaded via CDN)
-- Font: Lato (loaded via Google Fonts)
-
----
+- Game concept: classic “Pig” dice game
+- Icons: Ionicons (CDN)
+- Font: Lato (Google Fonts)
 
 ## License
 
-Add a license if you plan to distribute this publicly (MIT is common for portfolio projects).
+No license specified. Add an MIT license if you plan to distribute this publicly.
